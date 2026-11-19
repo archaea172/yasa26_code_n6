@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 # STM32CubeMX generated symbols (macros)
 set(MX_Defines_Syms 
 	USE_HAL_DRIVER 
-	STM32N657xx 
-	USE_NUCLEO_64
+	STM32N657xx
     $<$<CONFIG:Debug>:DEBUG>
 )
 # STM32CubeMX generated include paths
@@ -20,7 +19,6 @@ set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/../Middlewares/ST/STM32_ExtMem_Manager/psram
     ${CMAKE_CURRENT_SOURCE_DIR}/../Middlewares/ST/STM32_ExtMem_Manager/sdcard
     ${CMAKE_CURRENT_SOURCE_DIR}/../Middlewares/ST/STM32_ExtMem_Manager/user
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/BSP/STM32N6xx_Nucleo
     ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/CMSIS/Include
 )
 # STM32CubeMX generated application sources
@@ -48,11 +46,6 @@ set(STM32_Drivers_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_exti.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_xspi.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_usart.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_usart_ex.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_uart_ex.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_uart.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/BSP/STM32N6xx_Nucleo/stm32n6xx_nucleo.c
 )
 
 # Drivers Midllewares
