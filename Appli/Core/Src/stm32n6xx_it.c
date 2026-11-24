@@ -22,6 +22,7 @@
 #include "stm32n6xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "app_freertos.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -219,5 +220,19 @@ void USART1_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart == &huart1)
+  {
+    osThreadFlagsSet(debugTaskHandle, DEBUG_TX_DONE);
+  }
+}
 
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  if (huart == &huart1 && (huart->ErrorCode & HAL_UART_ERROR_DMA) != 0U)
+  {
+    osThreadFlagsSet(debugTaskHandle, DEBUG_TX_ERROR);
+  }
+}
 /* USER CODE END 1 */

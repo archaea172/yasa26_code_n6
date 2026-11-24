@@ -47,7 +47,8 @@ extern "C" {
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define DEBUG_TX_DONE   (1U << 0)
+#define DEBUG_TX_ERROR  (1U << 1)
 /* USER CODE END PD */
 
 /* Exported macro -------------------------------------------------------------*/
@@ -55,6 +56,7 @@ extern "C" {
 
 /* USER CODE END EM */
 extern osThreadId_t debugTaskHandle;
+extern osThreadId_t LD19TaskHandle;
 extern osMessageQueueId_t debugQueueHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
@@ -63,6 +65,7 @@ extern osMessageQueueId_t debugQueueHandle;
 /* USER CODE END FunctionPrototypes */
 
 void StartDebugTask(void *argument);
+void StartLD19Task(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
