@@ -75,6 +75,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LD19_RX_Pin GPIO_PIN_0
+#define LD19_RX_GPIO_Port GPIOE
 #define green_LED_Pin GPIO_PIN_0
 #define green_LED_GPIO_Port GPIOG
 #define red_LED_Pin GPIO_PIN_10
