@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stream_buffer.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,6 +51,11 @@ typedef struct {
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart8;
+
+StreamBufferHandle_t ld19_stream;
+
+uint8_t ld19_dma_rx[LD19_DMA_SIZE] __NON_CACHEABLE __attribute__((aligned(32)));
 /* USER CODE END Variables */
 /* Definitions for debugTask */
 osThreadId_t debugTaskHandle;
@@ -164,6 +170,13 @@ void StartDebugTask(void *argument)
 void StartLD19Task(void *argument)
 {
   /* USER CODE BEGIN LD19Task */
+  ld19_stream = xStreamBufferCreate(2048, 1);
+  if (ld19_stream == NULL)
+    Error_Handler();
+  
+  if (HAL_UART_Receive_DMA(&huart8, ld19_dma_rx, sizeof ld19_dma_rx) != HAL_OK)
+    Error_Handler();
+
   /* Infinite loop */
   for(;;)
   {

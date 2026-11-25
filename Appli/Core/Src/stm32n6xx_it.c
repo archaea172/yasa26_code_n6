@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "app_freertos.h"
+#include "stream_buffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,7 +66,8 @@ extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
-
+extern StreamBufferHandle_t ld19_stream;
+extern uint8_t ld19_dma_rx[LD19_DMA_SIZE];
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -265,6 +267,27 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
   if (huart == &huart1 && (huart->ErrorCode & HAL_UART_ERROR_DMA) != 0U)
   {
     osThreadFlagsSet(debugTaskHandle, DEBUG_TX_ERROR);
+  }
+}
+
+static void ld19_copy_half_from_isr(const uint8_t *src)
+{
+  BaseType_t wake = pdFALSE;
+  xStreamBufferSendFromISR(ld19_stream, src, LD19_DMA_HALF, &wake);
+  portYIELD_FROM_ISR(wake);
+}
+
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart == &huart8) {
+    ld19_copy_half_from_isr(&ld19_dma_rx[0]);          /* 前半 0～127 */
+  }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart == &huart8) {
+    ld19_copy_half_from_isr(&ld19_dma_rx[LD19_DMA_HALF]);          /* 前半 0～127 */
   }
 }
 /* USER CODE END 1 */

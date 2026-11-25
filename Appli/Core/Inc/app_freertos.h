@@ -49,6 +49,9 @@ extern "C" {
 /* USER CODE BEGIN PD */
 #define DEBUG_TX_DONE   (1U << 0)
 #define DEBUG_TX_ERROR  (1U << 1)
+
+#define LD19_DMA_SIZE 256
+#define LD19_DMA_HALF (LD19_DMA_SIZE / 2)
 /* USER CODE END PD */
 
 /* Exported macro -------------------------------------------------------------*/
