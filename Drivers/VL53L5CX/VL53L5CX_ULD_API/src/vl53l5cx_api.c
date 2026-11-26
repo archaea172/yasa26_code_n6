@@ -716,6 +716,7 @@ uint8_t vl53l5cx_get_ranging_data(
 
 	status |= VL53L5CX_RdMulti(&(p_dev->platform), 0x0,
 			p_dev->temp_buffer, p_dev->data_read_size);
+	if (status != VL53L5CX_STATUS_OK) return status;
 	p_dev->streamcount = p_dev->temp_buffer[0];
 	VL53L5CX_SwapBuffer(p_dev->temp_buffer, (uint16_t)p_dev->data_read_size);
 

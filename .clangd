@@ -9,3 +9,10 @@ CompileFlags:
   CompilationDatabase: FSBL/build
 If:
   PathMatch: FSBL/.*
+
+---
+
+CompileFlags:
+  CompilationDatabase: build/tof-check-2f26e6
+If:
+  PathMatch: build/.*

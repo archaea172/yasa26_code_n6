@@ -42,9 +42,13 @@ uint8_t TOF_App_Init(void)
     status = vl53l5cx_set_ranging_frequency_hz(&tof_dev, 10U);
     if (status != VL53L5CX_STATUS_OK) return status;
 
+    status = VL53L5CX_InitFrameDMA();
+    if (status != VL53L5CX_STATUS_OK) return status;
+
     status = vl53l5cx_start_ranging(&tof_dev);
     if (status != VL53L5CX_STATUS_OK) return status;
     
+    tof_dev.platform.frame_size = tof_dev.data_read_size;
     tof_started = 1U;
 
     return VL53L5CX_STATUS_OK;
@@ -53,20 +57,12 @@ uint8_t TOF_App_Init(void)
 uint8_t TOF_App_Process(uint8_t *p_new_frame)
 {
     uint8_t status;
-    uint8_t is_ready = 0U;
 
     if (p_new_frame == NULL) return VL53L5CX_STATUS_INVALID_PARAM;
 
     *p_new_frame = 0U;
 
     if (tof_started == 0U) return VL53L5CX_STATUS_ERROR;
-
-    status = vl53l5cx_check_data_ready(
-        &tof_dev,
-        &is_ready
-    );
-    if (status != VL53L5CX_STATUS_OK) return status;
-    if (is_ready == 0U) return VL53L5CX_STATUS_OK;
 
     status = vl53l5cx_get_ranging_data(
         &tof_dev,

@@ -32,6 +32,7 @@ typedef struct
 {
     uint16_t address;
     I2C_HandleTypeDef *i2c;
+	uint32_t frame_size;
 
     GPIO_TypeDef *lpn_port;
     uint16_t lpn_pin;
@@ -70,6 +71,9 @@ typedef struct
 #define VL53L5CX_DISABLE_REFLECTANCE_PERCENT
 // #define VL53L5CX_DISABLE_TARGET_STATUS
 #define VL53L5CX_DISABLE_MOTION_INDICATOR
+
+#define TOF_DMA_STOP_FAILED 254U
+uint8_t VL53L5CX_InitFrameDMA(void);
 
 /**
  * @param (VL53L5CX_Platform*) p_platform : Pointer of VL53L5CX platform

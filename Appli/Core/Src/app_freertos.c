@@ -299,7 +299,9 @@ void StartVl53l5Task(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(20));
+    if (0U == ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(20)))
+      continue;
+
     uint8_t new_frame = 0U;
     ToF_status = TOF_App_Process(&new_frame);
     if (ToF_status != VL53L5CX_STATUS_OK)
