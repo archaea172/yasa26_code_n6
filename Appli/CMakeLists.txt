@@ -51,6 +51,10 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 # Enable CMake support for ASM and C languages
 enable_language(C ASM)
 
+set(LD19_ROOT
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/LD19"
+)
+
 set(VL53L5CX_ROOT
     "${CMAKE_CURRENT_SOURCE_DIR}/../Drivers/VL53L5CX"
 )
@@ -58,11 +62,13 @@ set(VL53L5CX_ROOT
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    "${LD19_ROOT}/Inc"
 )
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    "${LD19_ROOT}/Src/ld19.c"
 )
 
 # Link directories setup

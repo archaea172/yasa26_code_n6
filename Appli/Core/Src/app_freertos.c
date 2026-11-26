@@ -54,8 +54,13 @@ extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart8;
 
 StreamBufferHandle_t ld19_stream;
+volatile uint32_t ld19_rx_errors;
 
 uint8_t ld19_dma_rx[LD19_DMA_SIZE] __NON_CACHEABLE __attribute__((aligned(32)));
+
+static ld19_scan_t ld19_scans[3];
+static ld19_scan_t *ld19_latest_scan = &ld19_scans[2];
+static osMutexId_t ld19_scan_mutex;
 /* USER CODE END Variables */
 /* Definitions for debugTask */
 osThreadId_t debugTaskHandle;
@@ -69,7 +74,21 @@ osThreadId_t LD19TaskHandle;
 const osThreadAttr_t LD19Task_attributes = {
   .name = "LD19Task",
   .priority = (osPriority_t) osPriorityLow,
-  .stack_size = 128 * 4
+  .stack_size = 512 * 4
+};
+/* Definitions for mclTask */
+osThreadId_t mclTaskHandle;
+const osThreadAttr_t mclTask_attributes = {
+  .name = "mclTask",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 512 * 4
+};
+/* Definitions for vl53l5Task */
+osThreadId_t vl53l5TaskHandle;
+const osThreadAttr_t vl53l5Task_attributes = {
+  .name = "vl53l5Task",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 4096 * 4
 };
 /* Definitions for debugQueue */
 osMessageQueueId_t debugQueueHandle;
@@ -79,6 +98,7 @@ const osMessageQueueAttr_t debugQueue_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
+static HAL_StatusTypeDef ld19_start_rx(void);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -93,7 +113,9 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
+  ld19_scan_mutex = osMutexNew(NULL);
+  if (ld19_scan_mutex == NULL)
+    Error_Handler();
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -114,6 +136,12 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of LD19Task */
   LD19TaskHandle = osThreadNew(StartLD19Task, NULL, &LD19Task_attributes);
+
+  /* creation of mclTask */
+  mclTaskHandle = osThreadNew(StartMclTask, NULL, &mclTask_attributes);
+
+  /* creation of vl53l5Task */
+  vl53l5TaskHandle = osThreadNew(StartVl53l5Task, NULL, &vl53l5Task_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -170,24 +198,133 @@ void StartDebugTask(void *argument)
 void StartLD19Task(void *argument)
 {
   /* USER CODE BEGIN LD19Task */
+  ld19_parser_t parser = {0};
+  ld19_scan_t *current = &ld19_scans[0];
+  ld19_scan_t *next = &ld19_scans[1];
+  uint8_t receive_data[LD19_DMA_HALF];
+  uint32_t handled_errors = 0;
+  HAL_StatusTypeDef rx_status = HAL_ERROR;
   ld19_stream = xStreamBufferCreate(2048, 1);
   if (ld19_stream == NULL)
     Error_Handler();
-  
-  if (HAL_UART_Receive_DMA(&huart8, ld19_dma_rx, sizeof ld19_dma_rx) != HAL_OK)
-    Error_Handler();
 
-  /* Infinite loop */
   for(;;)
   {
-    printf("Hello World!\r\n");
-    osDelay(1000);
+    uint32_t errors = ld19_rx_errors;
+    if (rx_status != HAL_OK || errors != handled_errors)
+    {
+      handled_errors = errors;
+      parser = (ld19_parser_t){0};
+      current->count = 0;
+      next->count = 0;
+      rx_status = ld19_start_rx();
+      if (rx_status != HAL_OK)
+      {
+        osDelay(pdMS_TO_TICKS(20));
+        continue;
+      }
+    }
+
+    /* DMAがエラーで停止した場合も、タイムアウトで再始動処理に戻る。 */
+    size_t received = xStreamBufferReceive(
+      ld19_stream,
+      receive_data,
+      sizeof receive_data,
+      pdMS_TO_TICKS(20)
+    );
+    if (handled_errors != ld19_rx_errors)
+      continue;
+
+    for (size_t i = 0; i < received; ++i)
+    {
+      if (ld19_byte_parse(&parser, receive_data[i], current, next) == SCAN_OK)
+      {
+        if (osMutexAcquire(ld19_scan_mutex, osWaitForever) != osOK)
+          Error_Handler();
+        ld19_scan_t *spare = ld19_latest_scan;
+        ld19_latest_scan = current;
+        osMutexRelease(ld19_scan_mutex);
+        current = next;
+        next = spare;
+      }
+    }
   }
   /* USER CODE END LD19Task */
 }
 
+/* USER CODE BEGIN Header_StartMclTask */
+/**
+* @brief Function implementing the mclTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartMclTask */
+void StartMclTask(void *argument)
+{
+  /* USER CODE BEGIN mclTask */
+  static ld19_scan_t scan;
+  /* Infinite loop */
+  for(;;)
+  {
+    if(!ld19_copy_latest_scan(&scan))
+      continue;
+
+    printf("distance:%d mm\r\n", scan.points[0].distance_mm);
+    osDelay(100);
+  }
+  /* USER CODE END mclTask */
+}
+
+/* USER CODE BEGIN Header_StartVl53l5Task */
+/**
+* @brief Function implementing the vl53l5Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartVl53l5Task */
+void StartVl53l5Task(void *argument)
+{
+  /* USER CODE BEGIN vl53l5Task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END vl53l5Task */
+}
+
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
+bool ld19_copy_latest_scan(ld19_scan_t *scan)
+{
+  if (scan == NULL || ld19_scan_mutex == NULL ||
+      osMutexAcquire(ld19_scan_mutex, osWaitForever) != osOK)
+    return false;
+
+  size_t count = ld19_latest_scan->count;
+  if (count != 0)
+  {
+    memcpy(scan->points, ld19_latest_scan->points, count * sizeof scan->points[0]);
+    scan->count = count;
+  }
+  osMutexRelease(ld19_scan_mutex);
+  return count != 0;
+}
+
+static HAL_StatusTypeDef ld19_start_rx(void)
+{
+  /* The LD19 may already be transmitting. Arm DMA before enabling UART8. */
+  __HAL_UART_DISABLE(&huart8);
+  if (HAL_UART_AbortReceive(&huart8) != HAL_OK)
+    return HAL_ERROR;
+
+  xStreamBufferReset(ld19_stream);
+  HAL_StatusTypeDef status = HAL_UART_Receive_DMA(&huart8, ld19_dma_rx, sizeof ld19_dma_rx);
+  if (status == HAL_OK)
+    __HAL_UART_ENABLE(&huart8);
+  return status;
+}
+
 int _write(int file, char *ptr, int len)
 {
   if (file != STDOUT_FILENO && file != STDERR_FILENO)

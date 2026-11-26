@@ -67,6 +67,7 @@ extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
 extern StreamBufferHandle_t ld19_stream;
+extern volatile uint32_t ld19_rx_errors;
 extern uint8_t ld19_dma_rx[LD19_DMA_SIZE];
 /* USER CODE END EV */
 
@@ -184,6 +185,34 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles EXTI Line6 interrupt.
+  */
+void EXTI6_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI6_IRQn 0 */
+
+  /* USER CODE END EXTI6_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(ToF_int_Pin);
+  /* USER CODE BEGIN EXTI6_IRQn 1 */
+
+  /* USER CODE END EXTI6_IRQn 1 */
+}
+
+/**
+  * @brief This function handles EXTI Line13 interrupt.
+  */
+void EXTI13_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI13_IRQn 0 */
+
+  /* USER CODE END EXTI13_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(user_button_Pin);
+  /* USER CODE BEGIN EXTI13_IRQn 1 */
+
+  /* USER CODE END EXTI13_IRQn 1 */
+}
+
+/**
   * @brief This function handles GPDMA1 Channel 0 global interrupt.
   */
 void GPDMA1_Channel0_IRQHandler(void)
@@ -264,7 +293,12 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-  if (huart == &huart1 && (huart->ErrorCode & HAL_UART_ERROR_DMA) != 0U)
+  if (huart == &huart8)
+  {
+    ++ld19_rx_errors;
+    return;
+  }
+  else if (huart == &huart1 && (huart->ErrorCode & HAL_UART_ERROR_DMA) != 0U)
   {
     osThreadFlagsSet(debugTaskHandle, DEBUG_TX_ERROR);
   }
@@ -273,21 +307,22 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 static void ld19_copy_half_from_isr(const uint8_t *src)
 {
   BaseType_t wake = pdFALSE;
-  xStreamBufferSendFromISR(ld19_stream, src, LD19_DMA_HALF, &wake);
+  if (xStreamBufferSendFromISR(ld19_stream, src, LD19_DMA_HALF, &wake) != LD19_DMA_HALF)
+    ++ld19_rx_errors;
   portYIELD_FROM_ISR(wake);
 }
 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart == &huart8) {
-    ld19_copy_half_from_isr(&ld19_dma_rx[0]);          /* 前半 0～127 */
+    ld19_copy_half_from_isr(&ld19_dma_rx[0]);
   }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart == &huart8) {
-    ld19_copy_half_from_isr(&ld19_dma_rx[LD19_DMA_HALF]);          /* 前半 0～127 */
+    ld19_copy_half_from_isr(&ld19_dma_rx[LD19_DMA_HALF]);
   }
 }
 /* USER CODE END 1 */
