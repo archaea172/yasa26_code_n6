@@ -325,4 +325,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     ld19_copy_half_from_isr(&ld19_dma_rx[LD19_DMA_HALF]);
   }
 }
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t gpioPin)
+{
+  BaseType_t higherPriorityTaskWoken = pdFALSE;
+
+  if (ToF_int_Pin == gpioPin && (vl53l5TaskHandle != NULL))
+  {
+    vTaskNotifyGiveFromISR(
+      vl53l5TaskHandle,
+      &higherPriorityTaskWoken
+    );
+
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+  }
+}
 /* USER CODE END 1 */

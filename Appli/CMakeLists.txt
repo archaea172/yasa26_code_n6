@@ -63,12 +63,17 @@ set(VL53L5CX_ROOT
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     "${LD19_ROOT}/Inc"
+    "${VL53L5CX_ROOT}/VL53L5CX_ULD_API/inc"
+    "${VL53L5CX_ROOT}/Platform"
 )
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     "${LD19_ROOT}/Src/ld19.c"
+    "${VL53L5CX_ROOT}/VL53L5CX_ULD_API/src/vl53l5cx_api.c"
+    "${VL53L5CX_ROOT}/Platform/platform.c"
+    "${CMAKE_SOURCE_DIR}/Core/Src/tof_app.c"
 )
 
 # Link directories setup

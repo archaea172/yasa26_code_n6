@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "tof_app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -285,10 +287,35 @@ void StartMclTask(void *argument)
 void StartVl53l5Task(void *argument)
 {
   /* USER CODE BEGIN vl53l5Task */
+  uint8_t ToF_zone = 64;
+  int16_t distance_mm[ToF_zone];
+
+  uint8_t ToF_status = TOF_App_Init();
+  if (ToF_status != VL53L5CX_STATUS_OK)
+  {
+    printf("ToF init failed: status=%u\r\n", (unsigned)ToF_status);
+    osThreadSuspend(osThreadGetId());
+  }
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(20));
+    uint8_t new_frame = 0U;
+    ToF_status = TOF_App_Process(&new_frame);
+    if (ToF_status != VL53L5CX_STATUS_OK)
+      continue;
+
+    if (new_frame != 0U)
+    {
+      const VL53L5CX_ResultsData *results = TOF_App_GetResults();
+      for (uint32_t zone = 0U; zone < ToF_zone; ++zone)
+      {
+        uint32_t target = zone * VL53L5CX_NB_TARGET_PER_ZONE;
+        uint8_t target_status = results->target_status[target];
+        distance_mm[zone] = results->distance_mm[target];
+      }
+      printf("distance: %d\r\n", distance_mm[32]);
+    }
   }
   /* USER CODE END vl53l5Task */
 }
