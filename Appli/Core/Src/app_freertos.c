@@ -76,6 +76,13 @@ const osThreadAttr_t LD19Task_attributes = {
   .priority = (osPriority_t) osPriorityLow,
   .stack_size = 512 * 4
 };
+/* Definitions for mclTask */
+osThreadId_t mclTaskHandle;
+const osThreadAttr_t mclTask_attributes = {
+  .name = "mclTask",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 512 * 4
+};
 /* Definitions for debugQueue */
 osMessageQueueId_t debugQueueHandle;
 const osMessageQueueAttr_t debugQueue_attributes = {
@@ -122,6 +129,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of LD19Task */
   LD19TaskHandle = osThreadNew(StartLD19Task, NULL, &LD19Task_attributes);
+
+  /* creation of mclTask */
+  mclTaskHandle = osThreadNew(StartMclTask, NULL, &mclTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -230,6 +240,29 @@ void StartLD19Task(void *argument)
     }
   }
   /* USER CODE END LD19Task */
+}
+
+/* USER CODE BEGIN Header_StartMclTask */
+/**
+* @brief Function implementing the mclTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartMclTask */
+void StartMclTask(void *argument)
+{
+  /* USER CODE BEGIN mclTask */
+  static ld19_scan_t scan;
+  /* Infinite loop */
+  for(;;)
+  {
+    if(!ld19_copy_latest_scan(&scan))
+      continue;
+
+    printf("distance:%d mm\r\n", scan.points[0].distance_mm);
+    osDelay(100);
+  }
+  /* USER CODE END mclTask */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -61,6 +61,7 @@ extern "C" {
 /* USER CODE END EM */
 extern osThreadId_t debugTaskHandle;
 extern osThreadId_t LD19TaskHandle;
+extern osThreadId_t mclTaskHandle;
 extern osMessageQueueId_t debugQueueHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
@@ -71,6 +72,7 @@ bool ld19_copy_latest_scan(ld19_scan_t *scan);
 
 void StartDebugTask(void *argument);
 void StartLD19Task(void *argument);
+void StartMclTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
