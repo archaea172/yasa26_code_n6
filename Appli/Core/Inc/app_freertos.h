@@ -32,7 +32,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ld19.h"
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -64,7 +65,8 @@ extern osMessageQueueId_t debugQueueHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
+/* タスクから直近の1回転分をコピーする。初回のスキャンが完成するまではfalse。 */
+bool ld19_copy_latest_scan(ld19_scan_t *scan);
 /* USER CODE END FunctionPrototypes */
 
 void StartDebugTask(void *argument);

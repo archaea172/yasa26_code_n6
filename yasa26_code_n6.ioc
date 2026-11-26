@@ -1138,4 +1138,4 @@ boardIOC=true
 rtos.0.ip=STMicroelectronics.X-CUBE-FREERTOS.1.6.0_Appli
 rtos.0.queues.0=allocationType,Dynamic;bufferName,NULL;controlBlockName,NULL;itemNumber,16;itemSize,debug_message_t;name,debugQueue
 rtos.0.tasks.0=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartDebugTask;name,debugTask;parameter,NULL;priority,osPriorityNormal;stackSize,128
-rtos.0.tasks.1=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartLD19Task;name,LD19Task;parameter,NULL;priority,osPriorityLow;stackSize,128
+rtos.0.tasks.1=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartLD19Task;name,LD19Task;parameter,NULL;priority,osPriorityLow;stackSize,512
