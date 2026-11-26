@@ -83,6 +83,13 @@ const osThreadAttr_t mclTask_attributes = {
   .priority = (osPriority_t) osPriorityLow,
   .stack_size = 512 * 4
 };
+/* Definitions for vl53l5Task */
+osThreadId_t vl53l5TaskHandle;
+const osThreadAttr_t vl53l5Task_attributes = {
+  .name = "vl53l5Task",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 4096 * 4
+};
 /* Definitions for debugQueue */
 osMessageQueueId_t debugQueueHandle;
 const osMessageQueueAttr_t debugQueue_attributes = {
@@ -132,6 +139,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of mclTask */
   mclTaskHandle = osThreadNew(StartMclTask, NULL, &mclTask_attributes);
+
+  /* creation of vl53l5Task */
+  vl53l5TaskHandle = osThreadNew(StartVl53l5Task, NULL, &vl53l5Task_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -263,6 +273,24 @@ void StartMclTask(void *argument)
     osDelay(100);
   }
   /* USER CODE END mclTask */
+}
+
+/* USER CODE BEGIN Header_StartVl53l5Task */
+/**
+* @brief Function implementing the vl53l5Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartVl53l5Task */
+void StartVl53l5Task(void *argument)
+{
+  /* USER CODE BEGIN vl53l5Task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END vl53l5Task */
 }
 
 /* Private application code --------------------------------------------------*/
