@@ -74,6 +74,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "${VL53L5CX_ROOT}/VL53L5CX_ULD_API/src/vl53l5cx_api.c"
     "${VL53L5CX_ROOT}/Platform/platform.c"
     "${CMAKE_SOURCE_DIR}/Core/Src/tof_app.c"
+    "${CMAKE_SOURCE_DIR}/Core/Src/dynamixel.c"
 )
 
 # Link directories setup

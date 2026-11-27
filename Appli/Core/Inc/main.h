@@ -89,6 +89,8 @@ void Error_Handler(void);
 #define user_button_EXTI_IRQn EXTI13_IRQn
 #define LD19_RX_Pin GPIO_PIN_0
 #define LD19_RX_GPIO_Port GPIOE
+#define servo_DIR_Pin GPIO_PIN_1
+#define servo_DIR_GPIO_Port GPIOA
 #define green_LED_Pin GPIO_PIN_0
 #define green_LED_GPIO_Port GPIOG
 #define red_LED_Pin GPIO_PIN_10

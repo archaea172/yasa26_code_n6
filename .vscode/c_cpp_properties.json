@@ -8,6 +8,10 @@
             "cppStandard": "c++17"
         },
         {
+            "name": "STM32_build",
+            "compileCommands": "${workspaceFolder}/build/tof-check-2f26e6/compile_commands.json"
+        },
+        {
             "name": "STM32_FSBL",
             "compileCommands": "${workspaceFolder}/FSBL/build/compile_commands.json",
             "intelliSenseMode": "windows-msvc-x64",
