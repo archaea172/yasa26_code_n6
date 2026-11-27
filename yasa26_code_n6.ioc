@@ -1217,3 +1217,4 @@ rtos.0.tasks.0=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlo
 rtos.0.tasks.1=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartLD19Task;name,LD19Task;parameter,NULL;priority,osPriorityLow;stackSize,512
 rtos.0.tasks.2=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartMclTask;name,mclTask;parameter,NULL;priority,osPriorityLow;stackSize,512
 rtos.0.tasks.3=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartVl53l5Task;name,vl53l5Task;parameter,NULL;priority,osPriorityLow;stackSize,4096
+rtos.0.tasks.4=allocationType,Dynamic;bufferName,NULL;codeGen,Default;controlBlockName,NULL;entry,StartDynamixelTask;name,dynamixelTask;parameter,NULL;priority,osPriorityLow;stackSize,128

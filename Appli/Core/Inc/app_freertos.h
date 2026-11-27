@@ -63,6 +63,7 @@ extern osThreadId_t debugTaskHandle;
 extern osThreadId_t LD19TaskHandle;
 extern osThreadId_t mclTaskHandle;
 extern osThreadId_t vl53l5TaskHandle;
+extern osThreadId_t dynamixelTaskHandle;
 extern osMessageQueueId_t debugQueueHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
@@ -75,6 +76,7 @@ void StartDebugTask(void *argument);
 void StartLD19Task(void *argument);
 void StartMclTask(void *argument);
 void StartVl53l5Task(void *argument);
+void StartDynamixelTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 

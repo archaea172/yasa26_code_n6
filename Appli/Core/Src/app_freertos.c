@@ -29,6 +29,7 @@
 #include <unistd.h>
 
 #include "tof_app.h"
+#include "dynamixel.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,6 +93,13 @@ const osThreadAttr_t vl53l5Task_attributes = {
   .priority = (osPriority_t) osPriorityLow,
   .stack_size = 4096 * 4
 };
+/* Definitions for dynamixelTask */
+osThreadId_t dynamixelTaskHandle;
+const osThreadAttr_t dynamixelTask_attributes = {
+  .name = "dynamixelTask",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 128 * 4
+};
 /* Definitions for debugQueue */
 osMessageQueueId_t debugQueueHandle;
 const osMessageQueueAttr_t debugQueue_attributes = {
@@ -144,6 +152,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of vl53l5Task */
   vl53l5TaskHandle = osThreadNew(StartVl53l5Task, NULL, &vl53l5Task_attributes);
+
+  /* creation of dynamixelTask */
+  dynamixelTaskHandle = osThreadNew(StartDynamixelTask, NULL, &dynamixelTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -313,13 +324,34 @@ void StartVl53l5Task(void *argument)
       for (uint32_t zone = 0U; zone < ToF_zone; ++zone)
       {
         uint32_t target = zone * VL53L5CX_NB_TARGET_PER_ZONE;
-        uint8_t target_status = results->target_status[target];
+        // uint8_t target_status = results->target_status[target];
         distance_mm[zone] = results->distance_mm[target];
       }
       printf("distance: %d\r\n", distance_mm[32]);
     }
   }
   /* USER CODE END vl53l5Task */
+}
+
+/* USER CODE BEGIN Header_StartDynamixelTask */
+/**
+* @brief Function implementing the dynamixelTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartDynamixelTask */
+void StartDynamixelTask(void *argument)
+{
+  /* USER CODE BEGIN dynamixelTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    dynamixel_set_led(1, 1);
+    osDelay(1000);
+    dynamixel_set_led(1, 0);
+    osDelay(1000);
+  }
+  /* USER CODE END dynamixelTask */
 }
 
 /* Private application code --------------------------------------------------*/
