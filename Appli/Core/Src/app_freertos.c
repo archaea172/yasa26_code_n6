@@ -30,6 +30,7 @@
 
 #include "tof_app.h"
 #include "dynamixel.h"
+#include "robot_drive.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -343,12 +344,10 @@ void StartVl53l5Task(void *argument)
 void StartDynamixelTask(void *argument)
 {
   /* USER CODE BEGIN dynamixelTask */
+  drive_init();
   /* Infinite loop */
   for(;;)
   {
-    dynamixel_set_led(1, 1);
-    osDelay(1000);
-    dynamixel_set_led(1, 0);
     osDelay(1000);
   }
   /* USER CODE END dynamixelTask */
