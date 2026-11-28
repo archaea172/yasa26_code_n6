@@ -40,6 +40,11 @@ typedef struct {
   char data[126];
 } debug_message_t;
 
+typedef struct {
+  float vel_parallel;
+  float omega;
+} robot_vel_t;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -106,6 +111,11 @@ osMessageQueueId_t debugQueueHandle;
 const osMessageQueueAttr_t debugQueue_attributes = {
   .name = "debugQueue"
 };
+/* Definitions for robotVelQueue */
+osMessageQueueId_t robotVelQueueHandle;
+const osMessageQueueAttr_t robotVelQueue_attributes = {
+  .name = "robotVelQueue"
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -138,6 +148,8 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_TIMERS */
   /* creation of debugQueue */
   debugQueueHandle = osMessageQueueNew (16, sizeof(debug_message_t), &debugQueue_attributes);
+  /* creation of robotVelQueue */
+  robotVelQueueHandle = osMessageQueueNew (16, sizeof(robot_vel_t), &robotVelQueue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -345,10 +357,14 @@ void StartDynamixelTask(void *argument)
 {
   /* USER CODE BEGIN dynamixelTask */
   drive_init();
+  robot_vel_t request;
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1000);
+    if (osOK != osMessageQueueGet(robotVelQueueHandle, &request, NULL, osWaitForever))
+      continue;
+
+    drive_send(request.vel_parallel, request.omega);
   }
   /* USER CODE END dynamixelTask */
 }

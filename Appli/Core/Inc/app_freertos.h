@@ -65,6 +65,7 @@ extern osThreadId_t mclTaskHandle;
 extern osThreadId_t vl53l5TaskHandle;
 extern osThreadId_t dynamixelTaskHandle;
 extern osMessageQueueId_t debugQueueHandle;
+extern osMessageQueueId_t robotVelQueueHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
